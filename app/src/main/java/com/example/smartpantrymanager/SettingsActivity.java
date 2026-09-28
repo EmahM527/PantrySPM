@@ -1,6 +1,6 @@
 package com.example.smartpantrymanager;
 
-
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -13,6 +13,8 @@ public class SettingsActivity extends AppCompatActivity {
     Switch switchExpiry;
     Spinner spinnerUnits;
 
+    SharedPreferences preferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,6 +26,41 @@ public class SettingsActivity extends AppCompatActivity {
 
         spinnerUnits =
                 findViewById(R.id.spinnerUnits);
+
+        // SharedPreferences stores the user's settings
+        preferences =
+                getSharedPreferences(
+                        "SmartPantrySettings",
+                        MODE_PRIVATE
+                );
+
+        // -----------------------------
+        // Expiring-Soon Alerts
+        // -----------------------------
+
+        boolean expiryEnabled =
+                preferences.getBoolean(
+                        "expiryAlerts",
+                        false
+                );
+
+        switchExpiry.setChecked(expiryEnabled);
+
+        switchExpiry.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> {
+
+                    preferences.edit()
+                            .putBoolean(
+                                    "expiryAlerts",
+                                    isChecked
+                            )
+                            .apply();
+                }
+        );
+
+        // -----------------------------
+        // Units Preference
+        // -----------------------------
 
         String[] units = {
                 "Metric",
@@ -42,5 +79,48 @@ public class SettingsActivity extends AppCompatActivity {
         );
 
         spinnerUnits.setAdapter(adapter);
+
+        // Load previously selected unit
+        String savedUnit =
+                preferences.getString(
+                        "unitsPreference",
+                        "Metric"
+                );
+
+        if (savedUnit.equals("Imperial")) {
+            spinnerUnits.setSelection(1);
+        } else {
+            spinnerUnits.setSelection(0);
+        }
+
+        // Save selected unit
+        spinnerUnits.setOnItemSelectedListener(
+                new android.widget.AdapterView.OnItemSelectedListener() {
+
+                    @Override
+                    public void onItemSelected(
+                            android.widget.AdapterView<?> parent,
+                            android.view.View view,
+                            int position,
+                            long id) {
+
+                        String selectedUnit =
+                                units[position];
+
+                        preferences.edit()
+                                .putString(
+                                        "unitsPreference",
+                                        selectedUnit
+                                )
+                                .apply();
+                    }
+
+                    @Override
+                    public void onNothingSelected(
+                            android.widget.AdapterView<?> parent) {
+                    }
+                }
+        );
     }
 }
+
