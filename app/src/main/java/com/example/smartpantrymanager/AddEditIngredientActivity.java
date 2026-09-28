@@ -11,6 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import database.DatabaseHelper;
 import model.Ingredient;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 public class AddEditIngredientActivity extends AppCompatActivity {
 
     EditText edtName;
@@ -75,6 +79,7 @@ public class AddEditIngredientActivity extends AppCompatActivity {
 
     private void saveIngredient() {
 
+
         String name = edtName.getText().toString().trim();
         String quantityText = edtQuantity.getText().toString().trim();
         String unit = edtUnit.getText().toString().trim();
@@ -100,6 +105,21 @@ public class AddEditIngredientActivity extends AppCompatActivity {
             edtUnit.requestFocus();
             return;
         }
+        if (!expiry.isEmpty()) {
+
+            SimpleDateFormat dateFormat =
+                    new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            dateFormat.setLenient(false);
+
+            try {
+                dateFormat.parse(expiry);
+            } catch (ParseException e) {
+                edtExpiry.setError("Enter a valid date (yyyy-MM-dd)");
+                edtExpiry.requestFocus();
+                return;
+            }
+        }
+
 
         double quantity;
 
