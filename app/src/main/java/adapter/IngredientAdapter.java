@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -87,12 +88,22 @@ public class IngredientAdapter
 
                         DatabaseHelper db =
                                 new DatabaseHelper(context);
+                        int rowsDeleted = db.deleteIngredient(ingredient.getId());
+                        boolean deleted = rowsDeleted > 0;
 
-                        db.deleteIngredient(ingredient.getId());
+                        if (deleted){
+                            ingredients.remove(position);
+                            notifyItemRemoved(position);
+                            Toast.makeText(context,ingredient.getName() + " deleted",Toast.LENGTH_LONG).show();
 
-                        ingredients.remove(position);
+                        } else{
+                            Toast.makeText(
+                                    context,
+                                    "Could not delete ingredient",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
 
-                        notifyItemRemoved(position);
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
